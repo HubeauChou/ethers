@@ -4,12 +4,16 @@ ethers的OC库
 可以直接导入工程使用，具体方法请看视频教程
 
 ethers提供了5中创建钱包的方式
+
 // 1、创建随机地址的钱包
 Account *account = [Account randomMnemonicAccount];
+
 // 2、通过私钥创建钱包
 Account *account = [Account accountWithPrivateKey:[SecureData hexStringToData:[privateKey hasPrefix:@"0x"]?privateKey:@"privateKey"]];
+
 // 3、通过助记词创建钱包
 Account *account = [Account accountWithMnemonicPhrase:@"mnemonics"];
+
 // 4、通过keystore创建钱包
 [Account decryptSecretStorageJSON:keyStore password:pwd callback:^(Account *account, NSError *NSError) {
 }];
@@ -19,6 +23,7 @@ NSString *decimal = @"18"; // wei
 Transaction *transaction = [Transaction transactionWithFromAddress:[Address addressWithString:@""]];
 
 // 5、获取nonce
+
 EtherscanProvider *e = [[EtherscanProvider alloc]initWithChainId:ChainIdHomestead apiKey:@"RCWEX6WYBXMJZHD5FD617NZ99TZADKBEDJ"];
 [[e getTransactionCount:transaction.fromAddress] onCompletion:^(IntegerPromise *pro) {
     if (pro.error != nil) {
@@ -32,6 +37,7 @@ EtherscanProvider *e = [[EtherscanProvider alloc]initWithChainId:ChainIdHomestea
 }];
 
 // 6、获取gasPrice
+
 [[e getGasPrice] onCompletion:^(BigNumberPromise *proGasPrice) {
     if (proGasPrice.error == nil) {
 
@@ -54,6 +60,7 @@ EtherscanProvider *e = [[EtherscanProvider alloc]initWithChainId:ChainIdHomestea
 }];
 
 // 7、合约签名
+
 SecureData *data = [SecureData secureDataWithCapacity:68];
 [data appendData:[SecureData hexStringToData:@"0xa9059cbb"]];
 
@@ -73,9 +80,10 @@ transaction.value = [BigNumber constantZero];
 transaction.data = data.data;
 transaction.toAddress = [Address addressWithString:@"toAdress"];//合约地址
 [account sign:transaction];
-
 NSData *signedTransaction = [transaction serialize];
+
 // 8、发起转账
+
 [[e sendTransaction:signedTransaction] onCompletion:^(HashPromise *pro) {
 
     NSLog(@"CloudKeychainSigner: Sent - signed=%@ hash=%@ error=%@", signedTransaction, pro.value, pro.error);
