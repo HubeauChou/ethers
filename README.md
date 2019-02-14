@@ -23,14 +23,19 @@ Account *account = [Account accountWithMnemonicPhrase:@"mnemonics"];
 }];
 
 NSString *gasPrice = @"100000000000"; // 手动设置传入参数
+
 NSString *decimal = @"18"; // wei
+
 Transaction *transaction = [Transaction transactionWithFromAddress:[Address addressWithString:@""]];
 
 // 5、获取nonce
 
 EtherscanProvider *e = [[EtherscanProvider alloc]initWithChainId:ChainIdHomestead apiKey:@"RCWEX6WYBXMJZHD5FD617NZ99TZADKBEDJ"];
+
 [[e getTransactionCount:transaction.fromAddress] onCompletion:^(IntegerPromise *pro) {
+
     if (pro.error != nil) {
+    
         NSLog(@"%@获取nonce失败",pro.error);
 
     }else{
@@ -66,24 +71,33 @@ EtherscanProvider *e = [[EtherscanProvider alloc]initWithChainId:ChainIdHomestea
 // 7、合约签名
 
 SecureData *data = [SecureData secureDataWithCapacity:68];
+
 [data appendData:[SecureData hexStringToData:@"0xa9059cbb"]];
 
 NSData *dataAddress = transaction.toAddress.data;//转入地址（真实代币转入地址添加到data里面）
+
 for (int i=0; i < 32 - dataAddress.length; i++) {
     [data appendByte:'\0'];
 }
+
 [data appendData:dataAddress];
 
 NSData *valueData = transaction.value.data;//真实代币交易数量添加到data里面
+
 for (int i=0; i < 32 - valueData.length; i++) {
     [data appendByte:'\0'];
 }
+
 [data appendData:valueData];
 
 transaction.value = [BigNumber constantZero];
+
 transaction.data = data.data;
+
 transaction.toAddress = [Address addressWithString:@"toAdress"];//合约地址
+
 [account sign:transaction];
+
 NSData *signedTransaction = [transaction serialize];
 
 // 8、发起转账
@@ -93,6 +107,7 @@ NSData *signedTransaction = [transaction serialize];
     NSLog(@"CloudKeychainSigner: Sent - signed=%@ hash=%@ error=%@", signedTransaction, pro.value, pro.error);
 
     if (pro.error == nil){
+    
         NSLog(@"\n---------------【生成转账交易成功！！！！】--------------\n哈希值 = %@\n",transaction.transactionHash.hexString);
         NSLog(@" 7成功 哈希值 =  %@",pro.value.hexString);
 
@@ -106,6 +121,7 @@ NSData *signedTransaction = [transaction serialize];
         }];
 
     }else{
+    
         NSLog(@" 8转账失败 %@",pro.error);
     }
 }];
